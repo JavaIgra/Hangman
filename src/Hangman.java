@@ -1,0 +1,90 @@
+import java.awt.*;
+import javax.swing.*;
+import java.util.ArrayList;
+
+/**
+ *  A GUI version of the game of Hangman.  The user tries to guess letters in
+ *  a secret word, and loses after 7 guesses that are not in the word.  The
+ *  user guesses a letter by clicking a button whose text is that letter.
+ */
+public class Hangman extends JPanel {
+
+    private Display display; // The central panel of the GUI, where things are drawn
+
+    private ArrayList<JButton> alphabetButtons = new ArrayList<JButton>(); // 26 buttons, with lables "A", "B", ..., "Z"
+    private JButton nextButton;    // A button the user can click after one game ends to go on to the next word.
+    private JButton giveUpButton;  // A button that the user can click during a game to give up and end the game.
+
+    private String message;     // A message that is drawn in the Display.
+    private String word;        // The current secret word.
+    private String guesses;     // A string containing all the letters that the user has guessed so far.
+    private boolean gameOver;   // False when a game is in progress, true when a game has ended and a new one not yet begun.
+    private int badGuesses;     // The number of incorrect letters that the user has guessed in the current game.}
+
+
+    /**
+     * This class defines the panel that occupies the large central area in the
+     * main panel.  The paintComponent() method in this class is responsible for
+     * drawing the content of that panel.  It shows everything that that the user
+     * is supposed to see, based on the current values of all the instance variables.
+     */
+    private class Display extends JPanel {
+        Display() {
+            setPreferredSize(new Dimension(620, 420));
+            setBackground(new Color(250, 230, 180));
+            setFont(new Font("Serif", Font.BOLD, 20));
+        }
+
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            ((Graphics2D) g).setStroke(new BasicStroke(3));
+            if (message != null) {
+                g.setColor(Color.RED);
+                g.drawString(message, 30, 40);
+            }
+        }
+    }
+
+    /**
+     * The constructor that creates the main panel, which is represented
+     * by this class.  It makes all the buttons and subpanels and adds
+     * them to the main panel.
+     */
+    public Hangman() {
+
+
+		/* Create the subpanels and add them to the main panel.
+		 */
+
+        display = new Display();  // The display panel that fills the large central area of the main panel.
+
+        JPanel bottom = new JPanel();  // The small panel on the bottom edge of the main panel.
+
+        setLayout(new BorderLayout(3, 3));  // Use a BorderLayout layout manager on the main panel.
+        add(display, BorderLayout.CENTER); // Put display in the central position in the "CENTER" position.
+        add(bottom, BorderLayout.SOUTH);   // Put bottom in the "SOUTH" position of the layout.
+
+        /* Make the main panel a little prettier
+		 */
+
+        setBackground(new Color(100, 0, 0));
+        setBorder(BorderFactory.createLineBorder(new Color(100, 0, 0), 3));
+    }
+    /**
+     * This main program makes it possible to run this class as an application.  The main routine
+     * creates a window, sets it to contain a panel of type Hangman, and shows the window in the
+     * center of the screen.
+     */
+    public static void main(String[] args) {
+        JFrame window = new JFrame("Hangman"); // The window, with "Hangman" in the title bar.
+        Hangman panel = new Hangman();  // The main panel for the window.
+        window.setContentPane(panel);   // Set the main panel to be the content of the window
+        window.pack();  // Set the size of the window based on the preferred sizes of what it contains.
+        window.setResizable(false);  // Don't let the user resize the window.
+        window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  // End the program if the user closes the window.
+        Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();  // The width/height of the screen.
+        window.setLocation( (screen.width - window.getWidth())/2,
+                (screen.height - window.getHeight())/2 );  // Position window in the center of screen.
+        window.setVisible(true);  // Make the window visible on the screen.
+    }
+}
