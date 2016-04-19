@@ -59,13 +59,20 @@ public class Hangman extends JPanel {
         display = new Display();  // The display panel that fills the large central area of the main panel.
 
         JPanel bottom = new JPanel();  // The small panel on the bottom edge of the main panel.
+        JPanel top = new JPanel(); // The small panel on the top edge of the main panel.
+        top.setLayout(new GridLayout(2, 13));// Use a GridLayout layout manager on the main panel.
 
         setLayout(new BorderLayout(3, 3));  // Use a BorderLayout layout manager on the main panel.
         add(display, BorderLayout.CENTER); // Put display in the central position in the "CENTER" position.
         add(bottom, BorderLayout.SOUTH);   // Put bottom in the "SOUTH" position of the layout.
-
+        add(top, BorderLayout.NORTH);   // Put top in the "NORTH" position of the layout.
         /* Make the main panel a little prettier
 		 */
+        for (char i = 'A'; i <= 'Z'; i++) {
+            JButton button = new JButton(i + "");
+            top.add(button);
+            alphabetButtons.add(button);
+        }
 
         setBackground(new Color(100, 0, 0));
         setBorder(BorderFactory.createLineBorder(new Color(100, 0, 0), 3));
