@@ -1,5 +1,7 @@
-import java.awt.*;
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 /**
@@ -31,7 +33,8 @@ public class Hangman extends JPanel {
     private class Display extends JPanel {
         Display() {
             setPreferredSize(new Dimension(620, 420));
-            setBackground(new Color(250, 230, 180));
+            //setBackground(new Color(250, 230, 180));
+            setBackground(Color.CYAN);
             setFont(new Font("Serif", Font.BOLD, 20));
         }
 
@@ -39,8 +42,18 @@ public class Hangman extends JPanel {
             super.paintComponent(g);
             ((Graphics2D) g).setStroke(new BasicStroke(3));
             if (message != null) {
-                g.setColor(Color.RED);
+                g.setColor(Color.BLACK);
                 g.drawString(message, 30, 40);
+            }
+        }
+    }
+
+    private class ButtonHandler implements ActionListener {
+        public void actionPerformed(ActionEvent evt) {
+            JButton whichButton = (JButton) evt.getSource();  // The button that the user clicked.
+            String cmd = evt.getActionCommand();  // The test from the button that the user clicked.
+            if (cmd.equals("Quit")) { // Respond to Quit button by ending the program.
+                System.exit(0);
             }
         }
     }
@@ -51,6 +64,7 @@ public class Hangman extends JPanel {
      * them to the main panel.
      */
     public Hangman() {
+        ButtonHandler buttonHandler = new ButtonHandler(); // The ActionListener that will respond to button clicks.
 
 
 		/* Create the subpanels and add them to the main panel.
@@ -59,12 +73,25 @@ public class Hangman extends JPanel {
         display = new Display();  // The display panel that fills the large central area of the main panel.
 
         JPanel bottom = new JPanel();  // The small panel on the bottom edge of the main panel.
+
+        nextButton = new JButton("Next word");
+        nextButton.addActionListener(buttonHandler);
+        bottom.add(nextButton);
+
+        giveUpButton = new JButton("Give up");
+        giveUpButton.addActionListener(buttonHandler);
+        bottom.add(giveUpButton);
+
+        JButton quit = new JButton("Quit");
+        quit.addActionListener(buttonHandler);
+        bottom.add(quit);
         JPanel top = new JPanel(); // The small panel on the top edge of the main panel.
         top.setLayout(new GridLayout(2, 13));// Use a GridLayout layout manager on the main panel.
 
         setLayout(new BorderLayout(3, 3));  // Use a BorderLayout layout manager on the main panel.
         add(display, BorderLayout.CENTER); // Put display in the central position in the "CENTER" position.
         add(bottom, BorderLayout.SOUTH);   // Put bottom in the "SOUTH" position of the layout.
+
         add(top, BorderLayout.NORTH);   // Put top in the "NORTH" position of the layout.
         /* Make the main panel a little prettier
 		 */
@@ -83,7 +110,7 @@ public class Hangman extends JPanel {
      * center of the screen.
      */
     public static void main(String[] args) {
-        JFrame window = new JFrame("Hangman"); // The window, with "Hangman" in the title bar.
+        JFrame window = new JFrame("TEAM BALI presents HANGMAN"); // The window, with "Hangman" in the title bar.
         Hangman panel = new Hangman();  // The main panel for the window.
         window.setContentPane(panel);   // Set the main panel to be the content of the window
         window.pack();  // Set the size of the window based on the preferred sizes of what it contains.
