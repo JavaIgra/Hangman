@@ -5,9 +5,9 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 /**
- *  A GUI version of the game of Hangman.  The user tries to guess letters in
- *  a secret word, and loses after 7 guesses that are not in the word.  The
- *  user guesses a letter by clicking a button whose text is that letter.
+ * A GUI version of the game of Hangman.  The user tries to guess letters in
+ * a secret word, and loses after 7 guesses that are not in the word.  The
+ * user guesses a letter by clicking a button whose text is that letter.
  */
 public class Hangman extends JPanel {
 
@@ -69,7 +69,7 @@ public class Hangman extends JPanel {
 
 
 		/* Create the subpanels and add them to the main panel.
-		 */
+         */
 
         display = new Display();  // The display panel that fills the large central area of the main panel.
 
@@ -107,6 +107,7 @@ public class Hangman extends JPanel {
 
         startGame();
     }
+
     private void startGame() {
         gameOver = false;
         guesses = "";
@@ -119,6 +120,7 @@ public class Hangman extends JPanel {
 
 
     }
+
     /**
      * This main program makes it possible to run this class as an application.  The main routine
      * creates a window, sets it to contain a panel of type Hangman, and shows the window in the
@@ -132,8 +134,8 @@ public class Hangman extends JPanel {
         window.setResizable(false);  // Don't let the user resize the window.
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  // End the program if the user closes the window.
         Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();  // The width/height of the screen.
-        window.setLocation( (screen.width - window.getWidth())/2,
-                (screen.height - window.getHeight())/2 );  // Position window in the center of screen.
+        window.setLocation((screen.width - window.getWidth()) / 2,
+                (screen.height - window.getHeight()) / 2);  // Position window in the center of screen.
         window.setVisible(true);  // Make the window visible on the screen.
     }
 }
