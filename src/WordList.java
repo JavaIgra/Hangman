@@ -15,11 +15,11 @@ public class WordList {
      * @param wordlistFileName the path to the resource file in the program.
      * @throws IllegalArgumentException if words can't be read from the resource file.
      */
-    public WordList(String wordlistFileName) {
+    public WordList(File wordlistFileName) {
         words = new ArrayList<String>();
         try {
             Scanner in;
-            in = new Scanner(getClass().getClassLoader().getResource(wordlistFileName).openStream());
+            in = new Scanner(wordlistFileName);
             while (in.hasNextLine()) {
                 String line = in.nextLine().trim();
                 if (line.length() > 0)

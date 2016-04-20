@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.util.ArrayList;
 
 /**
@@ -136,12 +137,16 @@ public class Hangman extends JPanel {
          */
         for (char i = 'A'; i <= 'Z'; i++) {
             JButton button = new JButton(i + "");
+            button.addActionListener(buttonHandler);
             top.add(button);
             alphabetButtons.add(button);
         }
 
         setBackground(new Color(100, 0, 0));
         setBorder(BorderFactory.createLineBorder(new Color(100, 0, 0), 3));
+
+        File txt = new File("src/words.txt");
+        wordlist = new WordList(txt);
 
         startGame();
     }
@@ -155,6 +160,12 @@ public class Hangman extends JPanel {
             alphabetButtons.get(i).setEnabled(true);
         }
         giveUpButton.setEnabled(true);
+        int index = (int) (Math.random() * wordlist.getWordCount());
+        word = wordlist.removeWord(index);
+        word = word.toUpperCase();
+        word2 = word.replaceAll("[\\w+]", "_ ");
+        message = "The word has " + word.length() + " letters.  Let's play Hangman!";
+        message2 = "Bag guesses remaining: " + (7 - badGuesses);
 
 
     }
