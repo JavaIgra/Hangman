@@ -16,13 +16,15 @@ public class Hangman extends JPanel {
     private ArrayList<JButton> alphabetButtons = new ArrayList<JButton>(); // 26 buttons, with lables "A", "B", ..., "Z"
     private JButton nextButton;    // A button the user can click after one game ends to go on to the next word.
     private JButton giveUpButton;  // A button that the user can click during a game to give up and end the game.
-
+    private String message2;     // A message that is drawn in the Display.
     private String message;     // A message that is drawn in the Display.
+    private WordList wordlist;  // An object holding the list of possible words that can be used in the game.
     private String word;        // The current secret word.
+    private String word2;
     private String guesses;     // A string containing all the letters that the user has guessed so far.
     private boolean gameOver;   // False when a game is in progress, true when a game has ended and a new one not yet begun.
     private int badGuesses;     // The number of incorrect letters that the user has guessed in the current game.}
-
+    int stage = 0;
 
     /**
      * This class defines the panel that occupies the large central area in the
@@ -53,10 +55,47 @@ public class Hangman extends JPanel {
         public void actionPerformed(ActionEvent evt) {
             JButton whichButton = (JButton) evt.getSource();  // The button that the user clicked.
             String cmd = evt.getActionCommand();  // The test from the button that the user clicked.
+
             if (cmd.equals("Quit")) { // Respond to Quit button by ending the program.
                 System.exit(0);
+            } else if (cmd.equals("Give up")) {
+                message = "You loose, because you gave up! The word is: " + word;
+                message2 = "Click \"Next word\" to play again.";
+                nextButton.setEnabled(true);
+                alphabetButtons.stream().forEach(b -> b.setEnabled(false));
+            } else if (whichButton == nextButton) {
+                stage = 0;
+                message2 = "Bad guesses remaining " + (7 - badGuesses);
+                startGame();
+            } else if (alphabetButtons.contains(whichButton)) {
+                whichButton.setEnabled(false);
+                if (word.indexOf(whichButton.getText()) != -1) {
+                    guesses += cmd;
+                    message = "Yes, " + whichButton.getText() + " is in the word. Pick your next letter.";
+                    word2 = stringBuilder(cmd, word, word2);
+                } else {
+                    message = "Sorry, " + whichButton.getText() + " is not in the word. Pick your next letter.";
+                    badGuesses++;
+                    message2 = "Bag guesses remaining: " + (7 - badGuesses);
+                    stage++;
+                }
+            }
+
+            display.repaint();  // Causes the display to be redrawn, to show any changes made in this method.
+        }
+    }
+
+    public String stringBuilder(String letter, String word, String word2) {
+        int index = word.indexOf(letter);
+        StringBuilder result = new StringBuilder();
+        for (int i = 0, j = 0; i < word.length(); i++, j += 2) {
+            if (word.charAt(i) == letter.charAt(0)) {
+                result.append(letter + " ");
+            } else {
+                result.append(word2.substring(j, j + 2));
             }
         }
+        return result.toString();
     }
 
     /**
@@ -66,7 +105,6 @@ public class Hangman extends JPanel {
      */
     public Hangman() {
         ButtonHandler buttonHandler = new ButtonHandler(); // The ActionListener that will respond to button clicks.
-//What the hell
 
 		/* Create the subpanels and add them to the main panel.
          */
@@ -95,7 +133,7 @@ public class Hangman extends JPanel {
 
         add(top, BorderLayout.NORTH);   // Put top in the "NORTH" position of the layout.
         /* Make the main panel a little prettier
-		 */
+         */
         for (char i = 'A'; i <= 'Z'; i++) {
             JButton button = new JButton(i + "");
             top.add(button);
