@@ -48,6 +48,7 @@ public class Hangman extends JPanel {
             if (message != null) {
                 g.setColor(Color.BLACK);
                 g.drawString(message, 30, 40);
+
             }
         }
     }
@@ -80,8 +81,19 @@ public class Hangman extends JPanel {
                     message2 = "Bag guesses remaining: " + (7 - badGuesses);
                     stage++;
                 }
+            }if (stage == 7) {
+                message = "Sorry, you are hung! The word is " + word;
+                alphabetButtons.stream().forEach(b -> b.setEnabled(false));
+                message2 = "Click \"Next word\" to play again.";
+                nextButton.setEnabled(true);
             }
 
+            if (wordIsComplete()) {
+                message = "CONGRATULATIONS, YOU WIN!!!";
+                alphabetButtons.stream().forEach(b -> b.setEnabled(false));
+                message2 = "Click \"Next word\" to play again.";
+                nextButton.setEnabled(true);
+            }
             display.repaint();  // Causes the display to be redrawn, to show any changes made in this method.
         }
     }
@@ -168,6 +180,14 @@ public class Hangman extends JPanel {
         message2 = "Bag guesses remaining: " + (7 - badGuesses);
 
 
+    }private boolean wordIsComplete() {
+        for (int i = 0; i < word.length(); i++) {
+            char ch = word.charAt(i);
+            if (guesses.indexOf(ch) == -1) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
