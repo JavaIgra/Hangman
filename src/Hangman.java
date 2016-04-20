@@ -16,57 +16,126 @@ public class Hangman extends JPanel {
     private Display display; // The central panel of the GUI, where things are drawn
 
     private ArrayList<JButton> alphabetButtons = new ArrayList<JButton>(); // 26 buttons, with lables "A", "B", ..., "Z"
+    int stage = 0;
     private JButton nextButton;    // A button the user can click after one game ends to go on to the next word.
     private JButton giveUpButton;  // A button that the user can click during a game to give up and end the game.
-    private String message2;     // A message that is drawn in the Display.
     private String message;     // A message that is drawn in the Display.
+    private String message2;     // A message that is drawn in the Display.
     private WordList wordlist;  // An object holding the list of possible words that can be used in the game.
     private String word;        // The current secret word.
-    private String word2;
+    private String matches;
     private String guesses;     // A string containing all the letters that the user has guessed so far.
     private boolean gameOver;   // False when a game is in progress, true when a game has ended and a new one not yet begun.
-    private int badGuesses;     // The number of incorrect letters that the user has guessed in the current game.}
-    int stage = 0;
+    private int badGuesses;     // The number of incorrect letters that the user has guessed in the current game.
+
+    /**
+     * This class defines a listener that will respond to the events that occur
+     * when the user clicks any of the buttons in the button.  The buttons are
+     * labeled "Next word", "Give up", "Quit", "A", "B", "C", ..., "Z".
+     */
+    private class ButtonHandler implements ActionListener {
+        public void actionPerformed(ActionEvent evt) {
+            JButton whichButton = (JButton) evt.getSource();  // The button that the user clicked.
+            String cmd = evt.getActionCommand();  // The test from the button that the user clicked.
+            if (cmd.equals("Quit")) { // Respond to Quit button by ending the program.
+                System.exit(0);
+            } else if (cmd.equals("Give up")) {
+                message = "You loose, because you gave up! The word is: " + word;
+                message2 = "Click \"Next word\" to play again.";
+                nextButton.setEnabled(true);
+                giveUpButton.setEnabled(false);
+                alphabetButtons.stream().forEach(b -> b.setEnabled(false));
+            } else if(whichButton == nextButton) {
+                stage = 0;
+                message2 = "Bad guesses remaining " + (7 - badGuesses);
+                startGame();
+            } else if (alphabetButtons.contains(whichButton)) {
+                whichButton.setEnabled(false);
+                if (word.indexOf(whichButton.getText()) != -1) {
+                    guesses += cmd;
+                    message = "Yes, " + whichButton.getText() + " is in the word. Pick your next letter.";
+                    matches = secretWordBuilder(cmd, word, matches);
+                } else {
+                    message = "Sorry, " + whichButton.getText() + " is not in the word. Pick your next letter.";
+                    badGuesses++;
+                    message2 = "Bag guesses remaining: " + (7 - badGuesses);
+                    stage++;
+                }
+            }
+
+            if (stage == 7) {
+                message = "Sorry, you are hung! The word is " + word;
+                alphabetButtons.stream().forEach(b -> b.setEnabled(false));
+                message2 = "Click \"Next word\" to play again.";
+                nextButton.setEnabled(true);
+                giveUpButton.setEnabled(false);
+            }
+
+            if (wordIsComplete()) {
+                message = "CONGRATULATIONS, YOU WIN!!!";
+                alphabetButtons.stream().forEach(b -> b.setEnabled(false));
+                message2 = "Click \"Next word\" to play again.";
+                giveUpButton.setEnabled(false);
+                nextButton.setEnabled(true);
+            }
+
+            display.repaint();  // Causes the display to be redrawn, to show any changes made in this method.
+        }
+    }
+
+    // this method builds the string with empty positions that is filled through the gsme
+    public String secretWordBuilder(String letter, String word, String word2) {
+        int index = word.indexOf(letter);
+        StringBuilder result = new StringBuilder();
+        for (int i = 0, j = 0; i < word.length(); i++, j += 2) {
+            if (word.charAt(i) == letter.charAt(0)) {
+                result.append(letter + " ");
+            } else {
+                result.append(word2.substring(j, j + 2));
+            }
+        }
+        return result.toString();
+    }
+
 
     /**
      * This class defines the panel that occupies the large central area in the
      * main panel.  The paintComponent() method in this class is responsible for
-     * drawing the content of that panel.  It shows everything that that the user
+     * drawing the content of that panel.  It shows everything that the user
      * is supposed to see, based on the current values of all the instance variables.
      */
-
     private class Display extends JPanel {
         Display() {
             setPreferredSize(new Dimension(620, 420));
-            //setBackground(new Color(250, 230, 180));
-            setBackground(Color.CYAN);
+            setBackground(new Color(200, 200, 255));
             setFont(new Font("Serif", Font.BOLD, 20));
         }
 
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g;
-            ((Graphics2D) g).setStroke(new BasicStroke(3));
-            if (message != null) {
+            g2.setStroke(new BasicStroke(3));
+            if (message != null && !gameOver) {
                 g.setColor(Color.BLACK);
                 g.drawString(message, 30, 40);
-
-            }else {
-                g.setColor(Color.BLUE);
+            } else {
+                g.setColor(Color.BLACK);
                 g.drawString(message2, 30, 70);
             }
 
             if (message2 != null && !gameOver) {
-                g.setColor(Color.RED);
+                g.setColor(Color.BLACK);
                 g.drawString(message2, 30, 70);
             } else {
                 g.setColor(Color.BLUE);
                 g.drawString(message2, 30, 70);
             }
 
-            ( g).drawString(word2, 30, 200);
+            ((Graphics2D) g).drawString(matches, 30, 200);
+            // change this from 0 to 7 to draw more and more of the man
             this.drawMan(g2, 400, 210, 200, stage); //или stage, и надолу не знам дали тябва да се смени
         }
+
         private void drawMan(Graphics2D g2, int cx, int cy, int height, int stage) {
             int h2 = height / 2;  // h2 = half height
             int w2 = height / 4;  // w2 = half width
@@ -101,78 +170,31 @@ public class Hangman extends JPanel {
         }
     }
 
-    private class ButtonHandler implements ActionListener {
-        public void actionPerformed(ActionEvent evt) {
-            JButton whichButton = (JButton) evt.getSource();  // The button that the user clicked.
-            String cmd = evt.getActionCommand();  // The test from the button that the user clicked.
-
-            if (cmd.equals("Quit")) { // Respond to Quit button by ending the program.
-                System.exit(0);
-            } else if (cmd.equals("Give up")) {
-                message = "You loose, because you gave up! The word is: " + word;
-                message2 = "Click \"Next word\" to play again.";
-                nextButton.setEnabled(true);
-                alphabetButtons.stream().forEach(b -> b.setEnabled(false));
-            } else if (whichButton == nextButton) {
-                stage = 0;
-                message2 = "Bad guesses remaining " + (7 - badGuesses);
-                startGame();
-            } else if (alphabetButtons.contains(whichButton)) {
-                whichButton.setEnabled(false);
-                if (word.indexOf(whichButton.getText()) != -1) {
-                    guesses += cmd;
-                    message = "Yes, " + whichButton.getText() + " is in the word. Pick your next letter.";
-                    word2 = stringBuilder(cmd, word, word2);
-                } else {
-                    message = "Sorry, " + whichButton.getText() + " is not in the word. Pick your next letter.";
-                    badGuesses++;
-                    message2 = "Bag guesses remaining: " + (7 - badGuesses);
-                    stage++;
-                }
-            }if (stage == 7) {
-                message = "Sorry, you are hung! The word is " + word;
-                alphabetButtons.stream().forEach(b -> b.setEnabled(false));
-                message2 = "Click \"Next word\" to play again.";
-                nextButton.setEnabled(true);
-            }
-
-            if (wordIsComplete()) {
-                message = "CONGRATULATIONS, YOU WIN!!!";
-                alphabetButtons.stream().forEach(b -> b.setEnabled(false));
-                message2 = "Click \"Next word\" to play again.";
-                nextButton.setEnabled(true);
-            }
-            display.repaint();  // Causes the display to be redrawn, to show any changes made in this method.
-        }
-    }
-
-    public String stringBuilder(String letter, String word, String word2) {
-        int index = word.indexOf(letter);
-        StringBuilder result = new StringBuilder();
-        for (int i = 0, j = 0; i < word.length(); i++, j += 2) {
-            if (word.charAt(i) == letter.charAt(0)) {
-                result.append(letter + " ");
-            } else {
-                result.append(word2.substring(j, j + 2));
-            }
-        }
-        return result.toString();
-    }
-
     /**
      * The constructor that creates the main panel, which is represented
      * by this class.  It makes all the buttons and subpanels and adds
      * them to the main panel.
      */
     public Hangman() {
+
         ButtonHandler buttonHandler = new ButtonHandler(); // The ActionListener that will respond to button clicks.
 
 		/* Create the subpanels and add them to the main panel.
-         */
+		 */
 
         display = new Display();  // The display panel that fills the large central area of the main panel.
-
         JPanel bottom = new JPanel();  // The small panel on the bottom edge of the main panel.
+        JPanel top = new JPanel(); // The small panel on the top edge of the main panel.
+        top.setLayout(new GridLayout(2, 13));// Use a GridLayout layout manager on the main panel.
+        setLayout(new BorderLayout(3, 3));  // Use a BorderLayout layout manager on the main panel.
+        add(display, BorderLayout.CENTER); // Put display in the central position in the "CENTER" position.
+        add(bottom, BorderLayout.SOUTH);   // Put bottom in the "SOUTH" position of the layout.
+        add(display, BorderLayout.CENTER); // Put display in the central position in the "CENTER" position.
+        add(top, BorderLayout.NORTH);   // Put top in the "NORTH" position of the layout.
+
+		/* Create three buttons, register the ActionListener to respond to clicks on the
+		 * buttons, and add them to the bottom panel.
+		 */
 
         nextButton = new JButton("Next word");
         nextButton.addActionListener(buttonHandler);
@@ -185,16 +207,12 @@ public class Hangman extends JPanel {
         JButton quit = new JButton("Quit");
         quit.addActionListener(buttonHandler);
         bottom.add(quit);
-        JPanel top = new JPanel(); // The small panel on the top edge of the main panel.
-        top.setLayout(new GridLayout(2, 13));// Use a GridLayout layout manager on the main panel.
 
-        setLayout(new BorderLayout(3, 3));  // Use a BorderLayout layout manager on the main panel.
-        add(display, BorderLayout.CENTER); // Put display in the central position in the "CENTER" position.
-        add(bottom, BorderLayout.SOUTH);   // Put bottom in the "SOUTH" position of the layout.
+		/* Make the main panel a little prettier
+		 */
 
-        add(top, BorderLayout.NORTH);   // Put top in the "NORTH" position of the layout.
-        /* Make the main panel a little prettier
-         */
+        // Create 26 buttons, register the ActionListener to respond to clicks on the
+        // buttons, and add them to the top panel.
         for (char i = 'A'; i <= 'Z'; i++) {
             JButton button = new JButton(i + "");
             button.addActionListener(buttonHandler);
@@ -205,12 +223,24 @@ public class Hangman extends JPanel {
         setBackground(new Color(100, 0, 0));
         setBorder(BorderFactory.createLineBorder(new Color(100, 0, 0), 3));
 
+		/* Get the list of possible secret words from the resource file named "wordlist.txt".
+		 */
+
         File txt = new File("src/words.txt");
         wordlist = new WordList(txt);
 
-        startGame();
-    }
+		/* Start the first game.
+		 */
 
+        startGame();
+
+    } // end constructor
+
+    /**
+     * This method should be called any time a new game starts. It picks a new
+     * secret word, initializes all the variables that record the state of the
+     * game, and sets the enabled/disabled state of all the buttons.
+     */
     private void startGame() {
         gameOver = false;
         guesses = "";
@@ -223,12 +253,17 @@ public class Hangman extends JPanel {
         int index = (int) (Math.random() * wordlist.getWordCount());
         word = wordlist.removeWord(index);
         word = word.toUpperCase();
-        word2 = word.replaceAll("[\\w+]", "_ ");
+        matches = word.replaceAll("[\\w+]", "_ ");
         message = "The word has " + word.length() + " letters.  Let's play Hangman!";
         message2 = "Bag guesses remaining: " + (7 - badGuesses);
+    }
 
 
-    }private boolean wordIsComplete() {
+    /**
+     * This method can be called to test whether the user has guessed all the letters
+     * in the current secret word.  That would mean the user has won the game.
+     */
+    private boolean wordIsComplete() {
         for (int i = 0; i < word.length(); i++) {
             char ch = word.charAt(i);
             if (guesses.indexOf(ch) == -1) {
@@ -244,7 +279,7 @@ public class Hangman extends JPanel {
      * center of the screen.
      */
     public static void main(String[] args) {
-        JFrame window = new JFrame("TEAM BALI presents HANGMAN"); // The window, with "Hangman" in the title bar.
+        JFrame window = new JFrame("Hangman"); // The window, with "Hangman" in the title bar.
         Hangman panel = new Hangman();  // The main panel for the window.
         window.setContentPane(panel);   // Set the main panel to be the content of the window
         window.pack();  // Set the size of the window based on the preferred sizes of what it contains.
@@ -255,4 +290,5 @@ public class Hangman extends JPanel {
                 (screen.height - window.getHeight()) / 2);  // Position window in the center of screen.
         window.setVisible(true);  // Make the window visible on the screen.
     }
-}
+
+} // end class Hangman
