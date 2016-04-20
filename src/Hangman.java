@@ -66,7 +66,7 @@ public class Hangman extends JPanel {
      */
     public Hangman() {
         ButtonHandler buttonHandler = new ButtonHandler(); // The ActionListener that will respond to button clicks.
-
+//What the hell
 
 		/* Create the subpanels and add them to the main panel.
          */
