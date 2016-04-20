@@ -30,6 +30,7 @@ public class Hangman extends JPanel {
      * drawing the content of that panel.  It shows everything that that the user
      * is supposed to see, based on the current values of all the instance variables.
      */
+
     private class Display extends JPanel {
         Display() {
             setPreferredSize(new Dimension(620, 420));
@@ -103,6 +104,20 @@ public class Hangman extends JPanel {
 
         setBackground(new Color(100, 0, 0));
         setBorder(BorderFactory.createLineBorder(new Color(100, 0, 0), 3));
+
+        startGame();
+    }
+    private void startGame() {
+        gameOver = false;
+        guesses = "";
+        badGuesses = 0;
+        nextButton.setEnabled(false);
+        for (int i = 0; i < alphabetButtons.size(); i++) {
+            alphabetButtons.get(i).setEnabled(true);
+        }
+        giveUpButton.setEnabled(true);
+
+
     }
     /**
      * This main program makes it possible to run this class as an application.  The main routine
