@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Ellipse2D;
 import java.io.File;
 import java.util.ArrayList;
 
@@ -44,12 +45,46 @@ public class Hangman extends JPanel {
 
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
+            Graphics2D g2 = (Graphics2D) g;
             ((Graphics2D) g).setStroke(new BasicStroke(3));
             if (message != null) {
                 g.setColor(Color.BLACK);
                 g.drawString(message, 30, 40);
 
             }
+            this.drawMan(g2, 400, 210, 200, stage); //или stage, и надолу не знам дали тябва да се смени
+        }
+        private void drawMan(Graphics2D g2, int cx, int cy, int height, int stage) {
+            int h2 = height / 2;  // h2 = half height
+            int w2 = height / 4;  // w2 = half width
+            g2.setStroke(new BasicStroke(4));
+            g2.drawLine(cx - w2, cy + h2, cx - w2, cy - h2);
+            g2.drawLine(cx - w2, cy - h2, cx + w2, cy - h2);
+            if (stage < 1) return;
+            g2.setStroke(new BasicStroke(2));
+            int xm = cx + w2 / 2;  // x-position of the man
+            // Draw the rope
+            g2.drawLine(xm, cy - h2, xm, cy - height / 3);
+            if (stage < 2) return;
+            int head_r = height / 12;  // radius of the head
+            // Head
+            g2.draw(new Ellipse2D.Double(xm - head_r, cy - height / 3, 2 * head_r, 2 * head_r));
+            if (stage < 3) return;
+            int neck_y = cy - height / 3 + 2 * head_r;
+            // Body
+            g2.drawLine(xm, neck_y, xm, cy + height / 8);
+            if (stage < 4) return;
+            // Right hand
+            g2.drawLine(xm, neck_y, xm - height / 5, neck_y + height / 5);
+            if (stage < 5) return;
+            // Left hand
+            g2.drawLine(xm, neck_y, xm + height / 5, neck_y + height / 5);
+            if (stage < 6) return;
+            // Right leg
+            g2.drawLine(xm, cy + height / 8, xm + height / 5, cy + height / 8 + height / 5);
+            if (stage < 7) return;
+            // Left leg
+            g2.drawLine(xm, cy + height / 8, xm - height / 5, cy + height / 8 + height / 5);
         }
     }
 
