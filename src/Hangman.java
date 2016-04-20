@@ -51,7 +51,20 @@ public class Hangman extends JPanel {
                 g.setColor(Color.BLACK);
                 g.drawString(message, 30, 40);
 
+            }else {
+                g.setColor(Color.BLUE);
+                g.drawString(message2, 30, 70);
             }
+
+            if (message2 != null && !gameOver) {
+                g.setColor(Color.RED);
+                g.drawString(message2, 30, 70);
+            } else {
+                g.setColor(Color.BLUE);
+                g.drawString(message2, 30, 70);
+            }
+
+            ( g).drawString(word2, 30, 200);
             this.drawMan(g2, 400, 210, 200, stage); //или stage, и надолу не знам дали тябва да се смени
         }
         private void drawMan(Graphics2D g2, int cx, int cy, int height, int stage) {
