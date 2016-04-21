@@ -241,7 +241,7 @@ public class Hangman extends JPanel {
         word = wordlist.removeWord(index).toUpperCase();
         matches = word.replaceAll("[\\w+]", "_ ");
         message = "The word has " + word.length() + " letters.  Let's play Hangman!";
-        message2 = "Bag guesses remaining: " + (7 - badGuesses);
+        message2 = "Bad guesses remaining: " + (7 - badGuesses);
     }
 
     /**
