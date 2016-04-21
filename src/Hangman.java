@@ -14,16 +14,15 @@ import java.util.ArrayList;
 public class Hangman extends JPanel {
 
     private Display display; // The central panel of the GUI, where things are drawn
-
     private ArrayList<JButton> alphabetButtons = new ArrayList<JButton>(); // 26 buttons, with lables "A", "B", ..., "Z"
-    int stage = 0;
+    private int stage = 0; // It tracks the stage of the game
     private JButton nextButton;    // A button the user can click after one game ends to go on to the next word.
     private JButton giveUpButton;  // A button that the user can click during a game to give up and end the game.
     private String message;     // A message that is drawn in the Display.
     private String message2;     // A message that is drawn in the Display.
     private WordList wordlist;  // An object holding the list of possible words that can be used in the game.
     private String word;        // The current secret word.
-    private String matches;
+    private String matches;     // This is the string with empty positions that is filled through the gsme
     private String guesses;     // A string containing all the letters that the user has guessed so far.
     private boolean gameOver;   // False when a game is in progress, true when a game has ended and a new one not yet begun.
     private int badGuesses;     // The number of incorrect letters that the user has guessed in the current game.
@@ -118,24 +117,18 @@ public class Hangman extends JPanel {
             if (message != null && !gameOver) {
                 g.setColor(Color.BLACK);
                 g.drawString(message, 30, 40);
-            } else {
-                g.setColor(Color.BLACK);
-                g.drawString(message2, 30, 70);
             }
 
             if (message2 != null && !gameOver) {
                 g.setColor(Color.BLACK);
                 g.drawString(message2, 30, 70);
-            } else {
-                g.setColor(Color.BLUE);
-                g.drawString(message2, 30, 70);
             }
 
-            ((Graphics2D) g).drawString(matches, 30, 200);
-            // change this from 0 to 7 to draw more and more of the man
-            this.drawMan(g2, 400, 210, 200, stage); //или stage, и надолу не знам дали тябва да се смени
+            g.drawString(matches, 30, 200);
+            this.drawMan(g2, 400, 210, 200, stage);
         }
 
+        // this method draws the body of the man
         private void drawMan(Graphics2D g2, int cx, int cy, int height, int stage) {
             int h2 = height / 2;  // h2 = half height
             int w2 = height / 4;  // w2 = half width
@@ -176,26 +169,31 @@ public class Hangman extends JPanel {
      * them to the main panel.
      */
     public Hangman() {
-
         ButtonHandler buttonHandler = new ButtonHandler(); // The ActionListener that will respond to button clicks.
-
-		/* Create the subpanels and add them to the main panel.
-		 */
-
-        display = new Display();  // The display panel that fills the large central area of the main panel.
-        JPanel bottom = new JPanel();  // The small panel on the bottom edge of the main panel.
-        JPanel top = new JPanel(); // The small panel on the top edge of the main panel.
-        top.setLayout(new GridLayout(2, 13));// Use a GridLayout layout manager on the main panel.
         setLayout(new BorderLayout(3, 3));  // Use a BorderLayout layout manager on the main panel.
-        add(display, BorderLayout.CENTER); // Put display in the central position in the "CENTER" position.
-        add(bottom, BorderLayout.SOUTH);   // Put bottom in the "SOUTH" position of the layout.
-        add(display, BorderLayout.CENTER); // Put display in the central position in the "CENTER" position.
-        add(top, BorderLayout.NORTH);   // Put top in the "NORTH" position of the layout.
 
-		/* Create three buttons, register the ActionListener to respond to clicks on the
+        // Creat Top Panel
+        JPanel top = new JPanel(); // The small panel on the top edge of the main panel.
+        top.setLayout(new GridLayout(2, 13));// Use a GridLayout layout manager on for the top panel.
+
+        // Create 26 buttons, register the ActionListener to respond to clicks on the
+        // buttons, and add them to the top panel.
+        for (char i = 'A'; i <= 'Z'; i++) {
+            JButton button = new JButton(i + "");
+            button.addActionListener(buttonHandler);
+            top.add(button);
+            alphabetButtons.add(button);
+        }
+
+        // Create Display Panel that fills the large central area of the main panel
+        display = new Display();
+
+        // Create Bottom Panel
+        JPanel bottom = new JPanel();  // The small panel on the bottom edge of the main panel.
+
+        /* Create three buttons, register the ActionListener to respond to clicks on the
 		 * buttons, and add them to the bottom panel.
 		 */
-
         nextButton = new JButton("Next word");
         nextButton.addActionListener(buttonHandler);
         bottom.add(nextButton);
@@ -208,32 +206,21 @@ public class Hangman extends JPanel {
         quit.addActionListener(buttonHandler);
         bottom.add(quit);
 
-		/* Make the main panel a little prettier
-		 */
+        // Add subpanels to the main panel.
+        add(top, BorderLayout.NORTH);   // Put top in the "NORTH" position of the layout.
+        add(display, BorderLayout.CENTER); // Put display in the central position in the "CENTER" position.
+        add(bottom, BorderLayout.SOUTH);   // Put bottom in the "SOUTH" position of the layout.
 
-        // Create 26 buttons, register the ActionListener to respond to clicks on the
-        // buttons, and add them to the top panel.
-        for (char i = 'A'; i <= 'Z'; i++) {
-            JButton button = new JButton(i + "");
-            button.addActionListener(buttonHandler);
-            top.add(button);
-            alphabetButtons.add(button);
-        }
-
+        // Set background color, border color and size
         setBackground(new Color(100, 0, 0));
         setBorder(BorderFactory.createLineBorder(new Color(100, 0, 0), 3));
 
-		/* Get the list of possible secret words from the resource file named "wordlist.txt".
-		 */
-
+		// Get the list of possible secret words from the resource file named "words.txt".
         File txt = new File("src/words.txt");
         wordlist = new WordList(txt);
 
-		/* Start the first game.
-		 */
-
+		// Start the first game.
         startGame();
-
     } // end constructor
 
     /**
@@ -251,13 +238,11 @@ public class Hangman extends JPanel {
         }
         giveUpButton.setEnabled(true);
         int index = (int) (Math.random() * wordlist.getWordCount());
-        word = wordlist.removeWord(index);
-        word = word.toUpperCase();
+        word = wordlist.removeWord(index).toUpperCase();
         matches = word.replaceAll("[\\w+]", "_ ");
         message = "The word has " + word.length() + " letters.  Let's play Hangman!";
         message2 = "Bag guesses remaining: " + (7 - badGuesses);
     }
-
 
     /**
      * This method can be called to test whether the user has guessed all the letters
@@ -279,7 +264,7 @@ public class Hangman extends JPanel {
      * center of the screen.
      */
     public static void main(String[] args) {
-        JFrame window = new JFrame("Hangman"); // The window, with "Hangman" in the title bar.
+        JFrame window = new JFrame("Team Bali presents Hangman"); // The window, with "Hangman" in the title bar.
         Hangman panel = new Hangman();  // The main panel for the window.
         window.setContentPane(panel);   // Set the main panel to be the content of the window
         window.pack();  // Set the size of the window based on the preferred sizes of what it contains.
@@ -290,5 +275,4 @@ public class Hangman extends JPanel {
                 (screen.height - window.getHeight()) / 2);  // Position window in the center of screen.
         window.setVisible(true);  // Make the window visible on the screen.
     }
-
 } // end class Hangman
