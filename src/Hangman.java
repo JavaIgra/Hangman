@@ -57,7 +57,7 @@ public class Hangman extends JPanel {
                 } else {
                     message = "Sorry, " + whichButton.getText() + " is not in the word. Pick your next letter.";
                     badGuesses++;
-                    message2 = "Bag guesses remaining: " + (7 - badGuesses);
+                    message2 = "Bad guesses remaining: " + (7 - badGuesses);
                     stage++;
                 }
             }
